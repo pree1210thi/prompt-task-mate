@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import TaskCard, { Task } from '@/components/TaskCard';
 import TaskForm from '@/components/TaskForm';
 import ShareTaskDialog from '@/components/ShareTaskDialog';
+import Settings from '@/components/Settings';
 import { useToast } from '@/hooks/use-toast';
 
 // Mock data for demonstration
@@ -53,9 +53,9 @@ const mockTasks: Task[] = [
 ];
 
 const mockUser = {
-  name: 'John Doe',
-  email: 'john@example.com',
-  avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face',
+  name: 'Preethi',
+  email: 'preethibby1210@gmail.com',
+  avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face',
 };
 
 interface DashboardProps {
@@ -67,6 +67,7 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const { toast } = useToast();
 
@@ -180,12 +181,30 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
     });
   };
 
+  const handleOpenSettings = () => {
+    setIsSettingsOpen(true);
+  };
+
+  const handleCloseSettings = () => {
+    setIsSettingsOpen(false);
+  };
+
   const filteredTasks = getFilteredTasks();
   const taskCounts = getTaskCounts();
 
+  if (isSettingsOpen) {
+    return (
+      <Settings 
+        user={mockUser} 
+        onClose={handleCloseSettings}
+        onLogout={onLogout}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header user={mockUser} onLogout={onLogout} />
+      <Header user={mockUser} onLogout={onLogout} onOpenSettings={handleOpenSettings} />
       
       <div className="flex">
         <Sidebar 
