@@ -1,14 +1,38 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import React, { useState } from 'react';
+import LoginPage from '@/components/LoginPage';
+import Dashboard from './Dashboard';
+import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
-  );
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { toast } = useToast();
+
+  const handleLogin = (provider: string) => {
+    console.log(`Logging in with ${provider}`);
+    // Simulate login process
+    setTimeout(() => {
+      setIsAuthenticated(true);
+      toast({
+        title: "Welcome to TodoFlow!",
+        description: `Successfully logged in with ${provider}.`,
+      });
+    }, 1000);
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out.",
+    });
+  };
+
+  if (!isAuthenticated) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
+  return <Dashboard onLogout={handleLogout} />;
 };
 
 export default Index;
