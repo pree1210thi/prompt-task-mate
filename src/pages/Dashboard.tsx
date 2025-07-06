@@ -16,7 +16,7 @@ const mockTasks: Task[] = [
     status: 'in-progress',
     priority: 'high',
     dueDate: new Date().toISOString(),
-    createdBy: 'john@example.com',
+    createdBy: 'preethibby1210@gmail.com',
     createdAt: new Date().toISOString(),
   },
   {
@@ -26,7 +26,7 @@ const mockTasks: Task[] = [
     status: 'completed',
     priority: 'medium',
     dueDate: new Date(Date.now() - 86400000).toISOString(), // Yesterday
-    createdBy: 'john@example.com',
+    createdBy: 'preethibby1210@gmail.com',
     createdAt: new Date().toISOString(),
   },
   {
@@ -47,7 +47,7 @@ const mockTasks: Task[] = [
     status: 'todo',
     priority: 'low',
     dueDate: new Date(Date.now() - 86400000).toISOString(), // Overdue
-    createdBy: 'john@example.com',
+    createdBy: 'preethibby1210@gmail.com',
     createdAt: new Date().toISOString(),
   },
 ];
@@ -203,7 +203,7 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <Header user={mockUser} onLogout={onLogout} onOpenSettings={handleOpenSettings} />
       
       <div className="flex">
@@ -214,24 +214,31 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
           taskCounts={taskCounts}
         />
         
-        <main className="flex-1 p-6">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              {activeFilter === 'all' && 'All Tasks'}
-              {activeFilter === 'today' && 'Due Today'}
-              {activeFilter === 'overdue' && 'Overdue Tasks'}
-              {activeFilter === 'shared' && 'Shared with Me'}
-            </h2>
-            <p className="text-gray-600">
-              {filteredTasks.length} task{filteredTasks.length !== 1 ? 's' : ''}
-            </p>
+        <main className="flex-1 p-8">
+          <div className="mb-8">
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20">
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+                {activeFilter === 'all' && 'All Tasks'}
+                {activeFilter === 'today' && 'Due Today'}
+                {activeFilter === 'overdue' && 'Overdue Tasks'}
+                {activeFilter === 'shared' && 'Shared with Me'}
+              </h2>
+              <p className="text-gray-600 text-lg">
+                {filteredTasks.length} task{filteredTasks.length !== 1 ? 's' : ''} to manage
+              </p>
+            </div>
           </div>
           
-          <div className="grid gap-4">
+          <div className="grid gap-6">
             {filteredTasks.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-gray-500 text-lg">No tasks found</p>
-                <p className="text-gray-400">Create your first task to get started</p>
+              <div className="text-center py-16">
+                <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-12 shadow-xl border border-white/20 max-w-md mx-auto">
+                  <div className="w-20 h-20 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
+                  </div>
+                  <p className="text-gray-500 text-xl mb-2">No tasks found</p>
+                  <p className="text-gray-400">Create your first task to get started</p>
+                </div>
               </div>
             ) : (
               filteredTasks.map(task => (
