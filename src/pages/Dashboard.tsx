@@ -6,6 +6,9 @@ import TaskForm from '@/components/TaskForm';
 import ShareTaskDialog from '@/components/ShareTaskDialog';
 import Settings from '@/components/Settings';
 import { useToast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
+import { Search } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 
 // Mock data for demonstration
 const mockTasks: Task[] = [
@@ -65,6 +68,7 @@ interface DashboardProps {
 const Dashboard = ({ onLogout }: DashboardProps) => {
   const [tasks, setTasks] = useState<Task[]>(mockTasks);
   const [activeFilter, setActiveFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -73,22 +77,32 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
 
   const getFilteredTasks = () => {
     const today = new Date().toDateString();
-    
+    let filtered = tasks;
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      filtered = filtered.filter(task =>
+        task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+    }
+
+    // Apply category filter
     switch (activeFilter) {
       case 'today':
-        return tasks.filter(task => 
+        return filtered.filter(task => 
           task.dueDate && new Date(task.dueDate).toDateString() === today
         );
       case 'overdue':
-        return tasks.filter(task => 
+        return filtered.filter(task => 
           task.dueDate && 
           new Date(task.dueDate) < new Date() && 
           task.status !== 'completed'
         );
       case 'shared':
-        return tasks.filter(task => task.sharedWith && task.sharedWith.length > 0);
+        return filtered.filter(task => task.sharedWith && task.sharedWith.length > 0);
       default:
-        return tasks;
+        return filtered;
     }
   };
 
@@ -106,6 +120,15 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
       ).length,
       shared: tasks.filter(task => task.sharedWith && task.sharedWith.length > 0).length,
     };
+  };
+
+  const getCompletionStats = () => {
+    const total = tasks.length;
+    const completed = tasks.filter(task => task.status === 'completed').length;
+    const inProgress = tasks.filter(task => task.status === 'in-progress').length;
+    const completionPercentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+    
+    return { total, completed, inProgress, completionPercentage };
   };
 
   const handleCreateTask = () => {
@@ -191,6 +214,7 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
 
   const filteredTasks = getFilteredTasks();
   const taskCounts = getTaskCounts();
+  const completionStats = getCompletionStats();
 
   if (isSettingsOpen) {
     return (
@@ -215,6 +239,67 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
         />
         
         <main className="flex-1 p-8">
+          {/* Search Bar */}
+          <div className="mb-6">
+            <div className="relative max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                type="text"
+                placeholder="Search tasks..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 bg-white/70 backdrop-blur-sm border-white/30 focus:border-blue-300 focus:ring-blue-200"
+              />
+            </div>
+          </div>
+
+          {/* Welcome Banner with Completion Status */}
+          <div className="mb-8">
+            <div className="bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-white/30">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                <div className="mb-6 lg:mb-0">
+                  <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+                    Welcome to TaskFlow, {mockUser.name}! 🚀
+                  </h1>
+                  <p className="text-gray-600 text-lg">
+                    Stay organized and boost your productivity
+                  </p>
+                </div>
+                
+                <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/30 min-w-[300px]">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4">Overall Progress</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium text-gray-600">Completion Rate</span>
+                        <span className="text-2xl font-bold bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent">
+                          {completionStats.completionPercentage}%
+                        </span>
+                      </div>
+                      <Progress value={completionStats.completionPercentage} className="h-3 bg-gray-200" />
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-4 text-center">
+                      <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg p-3">
+                        <div className="text-2xl font-bold text-blue-600">{completionStats.total}</div>
+                        <div className="text-xs text-gray-600">Total</div>
+                      </div>
+                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-3">
+                        <div className="text-2xl font-bold text-green-600">{completionStats.completed}</div>
+                        <div className="text-xs text-gray-600">Done</div>
+                      </div>
+                      <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg p-3">
+                        <div className="text-2xl font-bold text-orange-600">{completionStats.inProgress}</div>
+                        <div className="text-xs text-gray-600">In Progress</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Tasks Section Header */}
           <div className="mb-8">
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20">
               <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
@@ -224,11 +309,13 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
                 {activeFilter === 'shared' && 'Shared with Me'}
               </h2>
               <p className="text-gray-600 text-lg">
-                {filteredTasks.length} task{filteredTasks.length !== 1 ? 's' : ''} to manage
+                {filteredTasks.length} task{filteredTasks.length !== 1 ? 's' : ''} 
+                {searchQuery && ` matching "${searchQuery}"`}
               </p>
             </div>
           </div>
           
+          {/* Tasks Grid */}
           <div className="grid gap-6">
             {filteredTasks.length === 0 ? (
               <div className="text-center py-16">
@@ -236,8 +323,12 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
                   <div className="w-20 h-20 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
                     <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
                   </div>
-                  <p className="text-gray-500 text-xl mb-2">No tasks found</p>
-                  <p className="text-gray-400">Create your first task to get started</p>
+                  <p className="text-gray-500 text-xl mb-2">
+                    {searchQuery ? `No tasks found matching "${searchQuery}"` : 'No tasks found'}
+                  </p>
+                  <p className="text-gray-400">
+                    {searchQuery ? 'Try adjusting your search terms' : 'Create your first task to get started'}
+                  </p>
                 </div>
               </div>
             ) : (
